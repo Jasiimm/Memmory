@@ -55,30 +55,30 @@ export default function MemoryGame() {
   const handleCardClick = (cardId: number) => {
     if (flippedCards.length === 2) return
     if (flippedCards.includes(cardId)) return
-    if (cards.find(card => card.id === cardId)?.isMatched) return
+    if (cards.find((card: Card) => card.id === cardId)?.isMatched) return
 
     const newFlippedCards = [...flippedCards, cardId]
     setFlippedCards(newFlippedCards)
 
     // Update card state
-    setCards(prevCards => 
-      prevCards.map(card => 
+    setCards((prevCards: Card[]) => 
+      prevCards.map((card: Card) => 
         card.id === cardId ? { ...card, isFlipped: true } : card
       )
     )
 
     // Check for match when 2 cards are flipped
     if (newFlippedCards.length === 2) {
-      setMoves(moves + 1)
+      setMoves((prevMoves: number) => prevMoves + 1)
       const [firstId, secondId] = newFlippedCards
-      const firstCard = cards.find(card => card.id === firstId)
-      const secondCard = cards.find(card => card.id === secondId)
+      const firstCard = cards.find((card: Card) => card.id === firstId)
+      const secondCard = cards.find((card: Card) => card.id === secondId)
 
       if (firstCard?.emoji === secondCard?.emoji) {
         // Match found
-        setScore(score + 10)
-        setCards(prevCards => 
-          prevCards.map(card => 
+        setScore(prevScore => prevScore + 10)
+        setCards((prevCards: Card[]) => 
+          prevCards.map((card: Card) => 
             (card.id === firstId || card.id === secondId) 
               ? { ...card, isMatched: true } 
               : card
@@ -86,20 +86,23 @@ export default function MemoryGame() {
         )
         setFlippedCards([])
 
-        // Check if game is won
-        const updatedCards = cards.map(card => 
-          (card.id === firstId || card.id === secondId) 
-            ? { ...card, isMatched: true } 
-            : card
-        )
-        if (updatedCards.every(card => card.isMatched)) {
-          setGameWon(true)
-        }
+        // Check if game is won - use callback to get latest state
+        setCards((prevCards: Card[]) => {
+          const updatedCards = prevCards.map((card: Card) => 
+            (card.id === firstId || card.id === secondId) 
+              ? { ...card, isMatched: true } 
+              : card
+          )
+          if (updatedCards.every((card: Card) => card.isMatched)) {
+            setGameWon(true)
+          }
+          return updatedCards
+        })
       } else {
         // No match, flip cards back after delay
         setTimeout(() => {
-          setCards(prevCards => 
-            prevCards.map(card => 
+          setCards((prevCards: Card[]) => 
+            prevCards.map((card: Card) => 
               (card.id === firstId || card.id === secondId) 
                 ? { ...card, isFlipped: false } 
                 : card
@@ -115,7 +118,7 @@ export default function MemoryGame() {
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 p-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-4xl font-bold text-white text-center mb-8">
-          Memory Game
+          Memory Games
         </h1>
         
         {/* Game Stats */}
