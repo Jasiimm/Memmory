@@ -17,7 +17,6 @@ export default function MemoryGame() {
   const [score, setScore] = useState(0)
   const [moves, setMoves] = useState(0)
   const [gameWon, setGameWon] = useState(false)
-  const [isProcessing, setIsProcessing] = useState(false)
 
   // Initialize game
   useEffect(() => {
@@ -29,7 +28,7 @@ export default function MemoryGame() {
     let id = 0
 
     // Create pairs of cards
-    EMOJIS.forEach((emoji: string) => {
+    EMOJIS.forEach(emoji => {
       gameCards.push({
         id: id++,
         emoji,
@@ -44,140 +43,130 @@ export default function MemoryGame() {
       })
     })
 
-    // Shuffle cards using Fisher-Yates algorithm
-    const shuffledCards = [...gameCards]
-    for (let i = shuffledCards.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffledCards[i], shuffledCards[j]] = [shuffledCards[j], shuffledCards[i]]
-    }
-
+    // Shuffle cards
+    const shuffledCards = gameCards.sort(() => Math.random() - 0.5)
     setCards(shuffledCards)
     setFlippedCards([])
     setScore(0)
     setMoves(0)
     setGameWon(false)
-    setIsProcessing(false)
   }
 
   const handleCardClick = (cardId: number) => {
-    if (isProcessing) return
     if (flippedCards.length === 2) return
     if (flippedCards.includes(cardId)) return
-    
-    const clickedCard = cards.find((card: Card) => card.id === cardId)
-    if (clickedCard?.isMatched) return
+    if (cards.find(card => card.id === cardId)?.isMatched) return
 
     const newFlippedCards = [...flippedCards, cardId]
     setFlippedCards(newFlippedCards)
 
-    setCards((prevCards: Card[]) => 
-      prevCards.map((card: Card) => 
+    // Update card state
+    setCards(prevCards => 
+      prevCards.map(card => 
         card.id === cardId ? { ...card, isFlipped: true } : card
       )
     )
 
+    // Check for match when 2 cards are flipped
     if (newFlippedCards.length === 2) {
-      setIsProcessing(true)
-      setMoves((prevMoves: number) => prevMoves + 1)
-      
+      setMoves(moves + 1)
       const [firstId, secondId] = newFlippedCards
-      const firstCard = cards.find((card: Card) => card.id === firstId)
-      const secondCard = cards.find((card: Card) => card.id === secondId)
+      const firstCard = cards.find(card => card.id === firstId)
+      const secondCard = cards.find(card => card.id === secondId)
 
       if (firstCard?.emoji === secondCard?.emoji) {
-        setScore((prevScore: number) => prevScore + 10)
-        
-        setCards((prevCards: Card[]) => {
-          const updatedCards = prevCards.map((card: Card) => 
+        // Match found
+        setScore(score + 10)
+        setCards(prevCards => 
+          prevCards.map(card => 
             (card.id === firstId || card.id === secondId) 
               ? { ...card, isMatched: true } 
               : card
           )
-          
-          const allMatched = updatedCards.every((card: Card) => card.isMatched)
-          if (allMatched) {
-            setGameWon(true)
-          }
-          
-          return updatedCards
-        })
-        
+        )
         setFlippedCards([])
-        setIsProcessing(false)
+
+        // Check if game is won
+        const updatedCards = cards.map(card => 
+          (card.id === firstId || card.id === secondId) 
+            ? { ...card, isMatched: true } 
+            : card
+        )
+        if (updatedCards.every(card => card.isMatched)) {
+          setGameWon(true)
+        }
       } else {
+        // No match, flip cards back after delay
         setTimeout(() => {
-          setCards((prevCards: Card[]) => 
-            prevCards.map((card: Card) => 
+          setCards(prevCards => 
+            prevCards.map(card => 
               (card.id === firstId || card.id === secondId) 
                 ? { ...card, isFlipped: false } 
                 : card
             )
           )
           setFlippedCards([])
-          setIsProcessing(false)
         }, 1000)
       }
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 p-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-4xl font-bold text-white text-center mb-8">
           Memory Game
         </h1>
         
+        {/* Game Stats */}
         <div className="flex justify-center gap-8 mb-8">
-          <div className="bg-white rounded-lg p-4 px-6 shadow-xl">
+          <div className="bg-white rounded-lg px-6 py-3 shadow-lg">
             <div className="text-sm text-gray-600">Score</div>
             <div className="text-2xl font-bold text-purple-600">{score}</div>
           </div>
-          <div className="bg-white rounded-lg p-4 px-6 shadow-xl">
+          <div className="bg-white rounded-lg px-6 py-3 shadow-lg">
             <div className="text-sm text-gray-600">Moves</div>
             <div className="text-2xl font-bold text-purple-600">{moves}</div>
           </div>
         </div>
 
+        {/* Game Board */}
         <div className="grid grid-cols-4 gap-4 max-w-lg mx-auto mb-8">
-          {cards.map((card: Card) => (
+          {cards.map(card => (
             <div
               key={card.id}
               onClick={() => handleCardClick(card.id)}
               className={`
-                aspect-square rounded-lg cursor-pointer transition-all duration-300 
-                flex items-center justify-center text-4xl font-bold
-                hover:scale-105
+                aspect-square rounded-lg cursor-pointer transition-all duration-300 transform hover:scale-105
                 ${card.isFlipped || card.isMatched 
-                  ? (card.isMatched 
-                    ? 'bg-white text-gray-800 border-4 border-green-500' 
-                    : 'bg-white text-gray-800'
-                  )
-                  : 'bg-purple-600 text-white hover:bg-purple-700'
+                  ? 'bg-white' 
+                  : 'bg-purple-600 hover:bg-purple-700'
                 }
-                ${isProcessing ? 'pointer-events-none' : ''}
+                ${card.isMatched ? 'ring-4 ring-green-400' : ''}
               `}
             >
-              {card.isFlipped || card.isMatched ? card.emoji : '?'}
+              <div className="w-full h-full flex items-center justify-center text-4xl">
+                {card.isFlipped || card.isMatched ? card.emoji : '?'}
+              </div>
             </div>
           ))}
         </div>
 
+        {/* Game Controls */}
         <div className="text-center">
-          <button 
-            onClick={initializeGame} 
-            className="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold 
-                     shadow-xl hover:bg-gray-100 transition-colors duration-300"
+          <button
+            onClick={initializeGame}
+            className="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors shadow-lg"
           >
             New Game
           </button>
         </div>
 
+        {/* Win Message */}
         {gameWon && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <div className="bg-white rounded-lg p-8 text-center max-w-md">
-              <h2 className="text-3xl font-bold text-purple-600 mb-4">
-                🎉 Congratulations!
-              </h2>
+              <h2 className="text-3xl font-bold text-purple-600 mb-4">🎉 Congratulations!</h2>
               <p className="text-gray-600 mb-4">
                 You won in {moves} moves with a score of {score}!
               </p>
