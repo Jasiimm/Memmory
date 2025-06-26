@@ -131,7 +131,7 @@ export default function MemoryGame() {
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 p-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-4xl font-bold text-white text-center mb-8">
-          Memory Games 🎭
+          Memory Game 🎭
         </h1>
         
         {/* Game Stats */}
