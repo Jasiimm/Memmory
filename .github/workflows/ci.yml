@@ -43,20 +43,5 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./coverage/lcov.info
 
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Deploy to Vercel
-      uses: amondnet/vercel-action@v25
-      with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        vercel-args: '--prod'
-        vercel-org-id: ${{ secrets.ORG_ID }}
-        vercel-project-id: ${{ secrets.PROJECT_ID }}
-        working-directory: ./
+  # Deploy job is commented out - manual deployment via Vercel dashboard
+  # After connecting GitHub to Vercel, deployments will happen automatically
