@@ -295,7 +295,7 @@ export default function Home() {
       
       <div className="game-container">
         <div className="game-wrapper">
-          <h1 className="game-title">Memory Game 🎭</h1>
+          <h1 className="game-title">Memory Game </h1>
           
           <div className="stats-container">
             <div className="stat-card">
