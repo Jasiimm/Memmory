@@ -17,6 +17,7 @@ export default function MemoryGame() {
   const [score, setScore] = useState(0)
   const [moves, setMoves] = useState(0)
   const [gameWon, setGameWon] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
 
   // Initialize game
   useEffect(() => {
@@ -43,72 +44,84 @@ export default function MemoryGame() {
       })
     })
 
-    // Shuffle cards
-    const shuffledCards = gameCards.sort(() => Math.random() - 0.5)
+    // Shuffle cards using Fisher-Yates algorithm for better randomization
+    const shuffledCards = [...gameCards]
+    for (let i = shuffledCards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledCards[i], shuffledCards[j]] = [shuffledCards[j], shuffledCards[i]]
+    }
+
     setCards(shuffledCards)
     setFlippedCards([])
     setScore(0)
     setMoves(0)
     setGameWon(false)
+    setIsProcessing(false)
   }
 
   const handleCardClick = (cardId: number) => {
+    // Prevent clicks during processing or when game conditions aren't met
+    if (isProcessing) return
     if (flippedCards.length === 2) return
     if (flippedCards.includes(cardId)) return
-    if (cards.find((card: Card) => card.id === cardId)?.isMatched) return
+    
+    const clickedCard = cards.find(card => card.id === cardId)
+    if (clickedCard?.isMatched) return
 
     const newFlippedCards = [...flippedCards, cardId]
     setFlippedCards(newFlippedCards)
 
-    // Update card state
-    setCards((prevCards: Card[]) => 
-      prevCards.map((card: Card) => 
+    // Update card state to show it's flipped
+    setCards(prevCards => 
+      prevCards.map(card => 
         card.id === cardId ? { ...card, isFlipped: true } : card
       )
     )
 
     // Check for match when 2 cards are flipped
     if (newFlippedCards.length === 2) {
-      setMoves((prevMoves: number) => prevMoves + 1)
+      setIsProcessing(true)
+      setMoves(prevMoves => prevMoves + 1)
+      
       const [firstId, secondId] = newFlippedCards
-      const firstCard = cards.find((card: Card) => card.id === firstId)
-      const secondCard = cards.find((card: Card) => card.id === secondId)
+      const firstCard = cards.find(card => card.id === firstId)
+      const secondCard = cards.find(card => card.id === secondId)
 
       if (firstCard?.emoji === secondCard?.emoji) {
         // Match found
         setScore(prevScore => prevScore + 10)
-        setCards((prevCards: Card[]) => 
-          prevCards.map((card: Card) => 
+        
+        // Mark cards as matched
+        setCards(prevCards => {
+          const updatedCards = prevCards.map(card => 
             (card.id === firstId || card.id === secondId) 
               ? { ...card, isMatched: true } 
               : card
           )
-        )
-        setFlippedCards([])
-
-        // Check if game is won - use callback to get latest state
-        setCards((prevCards: Card[]) => {
-          const updatedCards = prevCards.map((card: Card) => 
-            (card.id === firstId || card.id === secondId) 
-              ? { ...card, isMatched: true } 
-              : card
-          )
-          if (updatedCards.every((card: Card) => card.isMatched)) {
+          
+          // Check if all cards are matched
+          const allMatched = updatedCards.every(card => card.isMatched)
+          if (allMatched) {
             setGameWon(true)
           }
+          
           return updatedCards
         })
+        
+        setFlippedCards([])
+        setIsProcessing(false)
       } else {
         // No match, flip cards back after delay
         setTimeout(() => {
-          setCards((prevCards: Card[]) => 
-            prevCards.map((card: Card) => 
+          setCards(prevCards => 
+            prevCards.map(card => 
               (card.id === firstId || card.id === secondId) 
                 ? { ...card, isFlipped: false } 
                 : card
             )
           )
           setFlippedCards([])
+          setIsProcessing(false)
         }, 1000)
       }
     }
@@ -146,6 +159,7 @@ export default function MemoryGame() {
                   : 'bg-purple-600 hover:bg-purple-700'
                 }
                 ${card.isMatched ? 'ring-4 ring-green-400' : ''}
+                ${isProcessing ? 'pointer-events-none' : ''}
               `}
             >
               <div className="w-full h-full flex items-center justify-center text-4xl">
@@ -167,7 +181,7 @@ export default function MemoryGame() {
 
         {/* Win Message */}
         {gameWon && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-8 text-center max-w-md">
               <h2 className="text-3xl font-bold text-purple-600 mb-4">🎉 Congratulations!</h2>
               <p className="text-gray-600 mb-4">
