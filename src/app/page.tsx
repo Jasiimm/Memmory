@@ -121,230 +121,77 @@ export default function Home() {
   }
 
   return (
-    <>
-      <style jsx global>{`
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
+    <div className="min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600 p-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl font-bold text-white text-center mb-8">
+          Memory Game
+        </h1>
         
-        body {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-        
-        .game-container {
-          min-height: 100vh;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          padding: 2rem;
-        }
-        
-        .game-wrapper {
-          max-width: 64rem;
-          margin: 0 auto;
-        }
-        
-        .game-title {
-          font-size: 2.5rem;
-          font-weight: bold;
-          color: white;
-          text-align: center;
-          margin-bottom: 2rem;
-        }
-        
-        .stats-container {
-          display: flex;
-          justify-content: center;
-          gap: 2rem;
-          margin-bottom: 2rem;
-        }
-        
-        .stat-card {
-          background: white;
-          border-radius: 0.5rem;
-          padding: 1rem 1.5rem;
-          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-        
-        .stat-label {
-          font-size: 0.875rem;
-          color: #6b7280;
-        }
-        
-        .stat-value {
-          font-size: 1.5rem;
-          font-weight: bold;
-          color: #7c3aed;
-        }
-        
-        .game-board {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 1rem;
-          max-width: 32rem;
-          margin: 0 auto 2rem auto;
-        }
-        
-        .card {
-          aspect-ratio: 1;
-          border-radius: 0.5rem;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 2.5rem;
-          font-weight: bold;
-        }
-        
-        .card:hover {
-          transform: scale(1.05);
-        }
-        
-        .card-back {
-          background: #7c3aed;
-          color: white;
-        }
-        
-        .card-back:hover {
-          background: #6d28d9;
-        }
-        
-        .card-front {
-          background: white;
-          color: #333;
-        }
-        
-        .card-matched {
-          background: white;
-          color: #333;
-          border: 4px solid #10b981;
-        }
-        
-        .card-processing {
-          pointer-events: none;
-        }
-        
-        .controls {
-          text-align: center;
-        }
-        
-        .new-game-btn {
-          background: white;
-          color: #7c3aed;
-          padding: 0.75rem 2rem;
-          border-radius: 0.5rem;
-          font-weight: 600;
-          border: none;
-          cursor: pointer;
-          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-          transition: background-color 0.3s ease;
-        }
-        
-        .new-game-btn:hover {
-          background: #f3f4f6;
-        }
-        
-        .modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 50;
-        }
-        
-        .modal-content {
-          background: white;
-          border-radius: 0.5rem;
-          padding: 2rem;
-          text-align: center;
-          max-width: 28rem;
-        }
-        
-        .modal-title {
-          font-size: 1.875rem;
-          font-weight: bold;
-          color: #7c3aed;
-          margin-bottom: 1rem;
-        }
-        
-        .modal-text {
-          color: #6b7280;
-          margin-bottom: 1rem;
-        }
-        
-        .play-again-btn {
-          background: #7c3aed;
-          color: white;
-          padding: 0.5rem 1.5rem;
-          border-radius: 0.5rem;
-          border: none;
-          cursor: pointer;
-          transition: background-color 0.3s ease;
-        }
-        
-        .play-again-btn:hover {
-          background: #6d28d9;
-        }
-      `}</style>
-      
-      <div className="game-container">
-        <div className="game-wrapper">
-          <h1 className="game-title">Memory Gamee </h1>
-          
-          <div className="stats-container">
-            <div className="stat-card">
-              <div className="stat-label">Score</div>
-              <div className="stat-value">{score}</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-label">Moves</div>
-              <div className="stat-value">{moves}</div>
-            </div>
+        <div className="flex justify-center gap-8 mb-8">
+          <div className="bg-white rounded-lg p-4 px-6 shadow-xl">
+            <div className="text-sm text-gray-600">Score</div>
+            <div className="text-2xl font-bold text-purple-600">{score}</div>
           </div>
-
-          <div className="game-board">
-            {cards.map(card => (
-              <div
-                key={card.id}
-                onClick={() => handleCardClick(card.id)}
-                className={`card ${
-                  card.isFlipped || card.isMatched 
-                    ? (card.isMatched ? 'card-matched' : 'card-front')
-                    : 'card-back'
-                } ${isProcessing ? 'card-processing' : ''}`}
-              >
-                {card.isFlipped || card.isMatched ? card.emoji : '?'}
-              </div>
-            ))}
+          <div className="bg-white rounded-lg p-4 px-6 shadow-xl">
+            <div className="text-sm text-gray-600">Moves</div>
+            <div className="text-2xl font-bold text-purple-600">{moves}</div>
           </div>
-
-          <div className="controls">
-            <button onClick={initializeGame} className="new-game-btn">
-              New Game
-            </button>
-          </div>
-
-          {gameWon && (
-            <div className="modal-overlay">
-              <div className="modal-content">
-                <h2 className="modal-title">🎉 Congratulations!</h2>
-                <p className="modal-text">
-                  You won in {moves} moves with a score of {score}!
-                </p>
-                <button onClick={initializeGame} className="play-again-btn">
-                  Play Again
-                </button>
-              </div>
-            </div>
-          )}
         </div>
+
+        <div className="grid grid-cols-4 gap-4 max-w-lg mx-auto mb-8">
+          {cards.map(card => (
+            <div
+              key={card.id}
+              onClick={() => handleCardClick(card.id)}
+              className={`
+                aspect-square rounded-lg cursor-pointer transition-all duration-300 
+                flex items-center justify-center text-4xl font-bold
+                hover:scale-105
+                ${card.isFlipped || card.isMatched 
+                  ? (card.isMatched 
+                    ? 'bg-white text-gray-800 border-4 border-green-500' 
+                    : 'bg-white text-gray-800'
+                  )
+                  : 'bg-purple-600 text-white hover:bg-purple-700'
+                }
+                ${isProcessing ? 'pointer-events-none' : ''}
+              `}
+            >
+              {card.isFlipped || card.isMatched ? card.emoji : '?'}
+            </div>
+          ))}
+        </div>
+
+        <div className="text-center">
+          <button 
+            onClick={initializeGame} 
+            className="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold 
+                     shadow-xl hover:bg-gray-100 transition-colors duration-300"
+          >
+            New Game
+          </button>
+        </div>
+
+        {gameWon && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-8 text-center max-w-md">
+              <h2 className="text-3xl font-bold text-purple-600 mb-4">
+                🎉 Congratulations!
+              </h2>
+              <p className="text-gray-600 mb-6">
+                You won in {moves} moves with a score of {score}!
+              </p>
+              <button 
+                onClick={initializeGame} 
+                className="bg-purple-600 text-white px-6 py-2 rounded-lg 
+                         hover:bg-purple-700 transition-colors duration-300"
+              >
+                Play Again
+              </button>
+            </div>
+          </div>
+        )}
       </div>
-    </>
+    </div>
   )
 }
